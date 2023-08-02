@@ -3,12 +3,10 @@ const cors = require("cors")
 const session = require("express-session")
 const bodyParser = require("body-parser")
 const passport = require("passport")
-const userRoutes = require("./routes/userRoutes")
-const msgRoutes = require("./routes/msgRoutes")
-const grpRoutes = require("./routes/grpRoutes")
-const user = require("./models").User
-const { Server } = require("socket.io")
-const http = require("http")
+const userRoutes = require("./src/routes/userRoutes")
+const msgRoutes = require("./src/routes/msgRoutes")
+const grpRoutes = require("./src/routes/grpRoutes")
+const user = require("./src/models").User
 require("dotenv").config()
 const app = express()
 const port = 5000
@@ -18,6 +16,8 @@ app.use(bodyParser.json())
 app.use(passport.initialize())
 app.use(session({ secret: "SECRET", resave: false, saveUninitialized: true }))
 app.use(passport.session())
+const path = require("path")
+app.use(express.static(path.join(__dirname, "public/uploads")))
 
 app.get("/success", async (req, res) => {
     console.log(req)

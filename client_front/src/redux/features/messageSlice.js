@@ -5,8 +5,7 @@ const initialState = {
     messageList: [],
     userList: [],
     groupList: [],
-    isLoading:false,
-    count:""
+    isLoading: false,
 }
 
 const messageSlice = createSlice({
@@ -19,7 +18,7 @@ const messageSlice = createSlice({
         setUserMsg(state, action) {
             const data = { ...current(state) }
             data.message = action.payload
-            return {...data}
+            return { ...data }
         },
         getChatUser() {},
         setChatUser(state, action) {
@@ -29,14 +28,13 @@ const messageSlice = createSlice({
         },
         getChat(state, action) {
             const res = action.payload
-            return {res,...state}
+            return { res, ...state }
         },
         setChat(state, action) {
             const data = { ...current(state) }
-            data.messageList=(action.payload.rows)
-            data.count = action.payload.count
+            data.messageList = action.payload
             data.isLoading = false
-            return data 
+            return data
         },
         addGroup(state, action) {
             return action.payload
@@ -45,6 +43,9 @@ const messageSlice = createSlice({
             const data = { ...current(state) }
             data.groupList = action.payload
             return { ...data }
+        },
+        addFile(state, action) {
+            return action.payload
         },
     },
 })
@@ -57,5 +58,6 @@ export const {
     setChat,
     addGroup,
     setGroup,
+    addFile,
 } = messageSlice.actions
 export default messageSlice.reducer

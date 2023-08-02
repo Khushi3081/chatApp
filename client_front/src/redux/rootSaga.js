@@ -11,6 +11,7 @@ import { groupSaga } from "./groupSaga"
 import { groupUserSaga } from "./groupChatSaga"
 import { grpmsgSaga } from "./features/groupMsgs"
 import { groupUserChatSaga } from "./features/groupUserChatSaga"
+import { mediaSaga } from "./mediaSaga"
 
 export default function* rootSaga() {
     yield all([
@@ -26,5 +27,6 @@ export default function* rootSaga() {
         ...groupUserSaga,
         ...grpmsgSaga,
         ...groupUserChatSaga,
+        ...mediaSaga,
     ])
 }
