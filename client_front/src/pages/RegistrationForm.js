@@ -128,7 +128,7 @@ function RegistrationForm() {
     return (
         <div>
             <h2>Registration-Form</h2>
-            <form onSubmit={handleSubmit(submitData)} method='POST'>
+            <form id="form-style" onSubmit={handleSubmit(submitData)} method='POST'>
                 <TextField
                     label='FirstName'
                     name='firstName'

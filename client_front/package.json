@@ -13,6 +13,7 @@
     "axios": "^1.4.0",
     "cors": "^2.8.5",
     "http-proxy-middleware": "^2.0.6",
+    "immer": "^10.0.2",
     "moment": "^2.29.4",
     "react": "^18.2.0",
     "react-doc-viewer": "^0.1.5",

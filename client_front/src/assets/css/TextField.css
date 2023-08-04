@@ -6,9 +6,9 @@ h1 {
     color: #232729;
     text-align: center; /* Center align the title */
 }
-form {
+#form-style {
     background-color: rgb(159, 250, 159);
-    max-width: 500px;
+    max-width: 50%;
     margin: 0 auto;
     padding: 30px;
     border-radius: 5px;

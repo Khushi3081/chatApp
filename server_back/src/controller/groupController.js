@@ -60,7 +60,6 @@ const fetchChat = async (req, res) => {
             include: [{ model: user, as: "user", attributes: ["firstName"] }],
         })
 
-        console.log("????????????????", sendReceive, "?????????????")
         sendReceive.sort((a, b) => a.createdAt - b.createdAt)
         res.send(sendReceive)
     } catch (error) {

@@ -19,11 +19,10 @@ const addData = async (req, res) => {
     res.send(data)
 }
 const addFile = async (req, res) => {
-    console.log(req.file);
     const senderId = Number(req.body.senderId)
     const receiverId = Number(req.body.receiverId)
     const data = await file.create({
-        fileName: req.file.filename,
+        fileName: req?.file?.filename,
         filePath: req.file.path,
         size: req.file.size,
         senderId: senderId,
@@ -53,6 +52,7 @@ const fetchChat = async (req, res) => {
     const senderId = Number(req.query.senderId)
     const receiverId = Number(req.query.receiverId)
     const offset = Number(req.query.offset)
+    console.log(offset)
     try {
         const msgData = await msg.findAll({
             where: {
@@ -95,4 +95,33 @@ const fetchChat = async (req, res) => {
         console.log(error.message)
     }
 }
-module.exports = { addData, chatUserData, fetchChat, addFile }
+const searchData = async (req, res) => {
+    try {
+        const senderId = Number(req.query.senderId)
+        const receiverId = Number(req.query.receiverId)
+        const search = req.query.search
+        const data = await msg.findAll({
+            where: {
+                [Op.and]: {
+                    messageBody: {
+                        [Op.like]: "%" + search + "%",
+                    },
+                    [Op.or]: [
+                        {
+                            senderId: senderId,
+                            receiverId: receiverId,
+                        },
+                        {
+                            senderId: receiverId,
+                            receiverId: senderId,
+                        },
+                    ],
+                },
+            },
+        })
+        res.send(data)
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+module.exports = { addData, chatUserData, fetchChat, addFile, searchData }

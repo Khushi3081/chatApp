@@ -133,6 +133,7 @@ function GroupChat() {
                 </main>
 
                 <form
+                    id='form-style'
                     className='msger-inputarea'
                     onSubmit={handleSubmit(submitData)}
                     method='POST'

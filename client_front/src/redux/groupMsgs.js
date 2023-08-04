@@ -1,6 +1,6 @@
 import axios from "axios"
 import { fork, call, put, takeEvery } from "redux-saga/effects"
-import { getMsg, setMsg } from "./groupSlice"
+import { getMsg, setMsg } from "./features/groupSlice"
 const msgData = async (payload) => {
     const response = await axios.post("http://localhost:5000/grp/addMsg", {
         msg: payload.data.msg,
@@ -11,7 +11,7 @@ const msgData = async (payload) => {
 }
 
 function* onFetchMsg({ payload }) {
-    console.log(payload);
+    console.log(payload)
     try {
         const data = yield call(msgData, payload)
         if (data) {

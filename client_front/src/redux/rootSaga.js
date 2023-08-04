@@ -9,9 +9,10 @@ import { chatUserSaga } from "./chatUserSaga"
 import { chatSaga } from "./chatSaga"
 import { groupSaga } from "./groupSaga"
 import { groupUserSaga } from "./groupChatSaga"
-import { grpmsgSaga } from "./features/groupMsgs"
-import { groupUserChatSaga } from "./features/groupUserChatSaga"
+import { grpmsgSaga } from "./groupMsgs"
+import { groupUserChatSaga } from "./groupUserChatSaga"
 import { mediaSaga } from "./mediaSaga"
+import { searchSaga } from "./searchSaga"
 
 export default function* rootSaga() {
     yield all([
@@ -28,5 +29,6 @@ export default function* rootSaga() {
         ...grpmsgSaga,
         ...groupUserChatSaga,
         ...mediaSaga,
+        ...searchSaga,
     ])
 }

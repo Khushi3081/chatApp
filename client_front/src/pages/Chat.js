@@ -1,13 +1,19 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import "../assets/css/TextField.css"
 import { useDispatch, useSelector } from "react-redux"
-import { addFile, getChat, getMsg } from "../redux/features/messageSlice"
+import {
+    addFile,
+    clearSearchValue,
+    getChat,
+    getMsg,
+    getSearchValue,
+} from "../redux/features/messageSlice"
 import { useForm } from "react-hook-form"
 import { useParams } from "react-router-dom"
 import moment from "moment"
 import "../assets/css/Message.css"
-
 function Chat() {
+    const [search, setSearch] = useState()
     const { id } = useParams()
     const receiverId = id
     const dispatch = useDispatch()
@@ -18,19 +24,18 @@ function Chat() {
     const chatWindow = useRef(null)
     const messageContainerRef = useRef(null)
     const scrollToBottom = () => {
-        if (messageContainerRef.current) {
-            messageContainerRef.current?.scrollIntoView({
-                block: "end",
-                behavior: "smooth",
-            })
-        }
+        const messageBody = chatWindow.current
+        messageBody.scrollTop =
+            messageBody.scrollHeight - messageBody.clientHeight
     }
     useEffect(() => {
         const offset = offsetRef.current
         dispatch(getChat({ senderId, receiverId, offset }))
     }, [senderId, receiverId])
 
-    useEffect(scrollToBottom, [])
+    useEffect(() => {
+        scrollToBottom()
+    })
     const {
         register,
         handleSubmit,
@@ -40,9 +45,6 @@ function Chat() {
         reset,
     } = useForm()
 
-    async function uploadimg(e) {
-        const file = e.target.files[0]
-    }
     const submitData = (data) => {
         if (data.msg === "" && data.file.length === 0) {
             setError("fieldRequired", {
@@ -53,10 +55,9 @@ function Chat() {
         }
         if (!errors.fieldRequired?.message && data.msg !== "") {
             dispatch(getMsg({ data, senderId, receiverId }))
-            reset()
             scrollToBottom()
-        }
-        if (!errors.fieldRequired?.message && data.file[0] !== "") {
+            reset()
+        } else if (!errors?.fieldRequired?.message && data?.file[0] !== "") {
             const file = data.file[0]
             const info = new FormData()
             info.append("senderId", senderId)
@@ -67,29 +68,112 @@ function Chat() {
             scrollToBottom()
         }
     }
-    const handleScroll = () => {
-        if (chat?.messageList?.length === 0) return
-        const chatWindowElement = chatWindow.current
-        const scrolledToTop = chatWindowElement.scrollTop === 0
+
+    const handleScroll = (e) => {
+        const messageBody = chatWindow.current
+        const scrolledToTop = messageBody.scrollTop !== 0
+
         const scrolledUpToHeight =
-            chatWindowElement.scrollHeight -
-                chatWindowElement.clientHeight -
-                chatWindowElement.scrollTop <
+            messageBody.scrollHeight -
+                messageBody.clientHeight -
+                messageBody.scrollTop <
             100
-        if (scrolledToTop || scrolledUpToHeight) {
+
+        // if (
+        //     messageBody.scrollTop ===
+        //     messageBody.scrollHeight - messageBody.clientHeight
+        // ) {
+        if (scrolledUpToHeight && scrolledToTop) {
             offsetRef.current += limit
             const offset = offsetRef.current
+            console.log(offset)
             dispatch(getChat({ senderId, receiverId, offset }))
         }
+        // }
+    }
+    const handleSearch = (e) => {
+        const search = e.target.value
+        setSearch(search)
+        // dispatch(getSearchValue({ search, senderId, receiverId }))
+    }
+    const highLight = (message) => {
+        const parts = []
+        let startIndex = 0
+        const lowerCaseMessage = message.toLowerCase()
+        const searchTermIndex = lowerCaseMessage.indexOf(
+            search?.toLowerCase(),
+            startIndex
+        )
+
+        if (searchTermIndex !== -1 && message.includes(search)) {
+            const beforeSearch = message.substring(0, searchTermIndex)
+            const term = message.substring(
+                searchTermIndex,
+                searchTermIndex + search.length
+            )
+            const afterSearch = message.substring(
+                searchTermIndex + search.length
+            )
+            parts.push(
+                <span>
+                    {beforeSearch}
+                    <span style={{ backgroundColor: "yellow" }}>{term}</span>
+                    {afterSearch}
+                </span>
+            )
+            return parts
+        }
+        return message
     }
 
+    let count = 0
+    if (search?.length >= 3) {
+        chat.messageList.map((message) => {
+            const msg = message?.messageBody
+            if (msg?.includes(search) === true) {
+                count++
+            }
+            return count
+        })
+    }
     return (
         <div>
             <h2>Get started</h2>
             <section className='msger'>
                 <header className='msger-header'>
                     <div className='msger-header-title'>
-                        <i className='fas fa-comment-alt'></i> SimpleChat
+                        <i className='fas fa-comment-alt'></i>
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "row",
+                            }}
+                        >
+                            <div
+                                style={{
+                                    fontSize: "20px",
+                                    marginRight: "1rem",
+                                }}
+                            >
+                                SimpleChat
+                            </div>
+
+                            <div
+                                style={{
+                                    marginRight: "1rem",
+                                }}
+                            >
+                                <input
+                                    type='text'
+                                    name='text'
+                                    placeholder='Search chat here...'
+                                    onChange={handleSearch}
+                                ></input>
+                            </div>
+                            <div style={{fontSize:"1.3rem"}}>
+                                Matched Ocuurences : {count}
+                            </div>
+                        </div>
                     </div>
                     <div className='msger-header-options'>
                         <span>
@@ -100,7 +184,7 @@ function Chat() {
                 <main
                     ref={chatWindow}
                     className='msger-chat'
-                    onScroll={handleScroll}
+                    // onScroll={handleScroll}
                 >
                     {chat?.messageList?.length > 0 ? (
                         chat?.messageList?.map((e, index) => {
@@ -127,9 +211,17 @@ function Chat() {
                                                 </div>
                                             </div>
                                             {e.messageBody ? (
-                                                <div className='msg-text'>
-                                                    {e.messageBody}
-                                                </div>
+                                                search?.length >= 3 ? (
+                                                    <div className='msg-text'>
+                                                        {highLight(
+                                                            e.messageBody
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className='msg-text'>
+                                                        {e.messageBody}
+                                                    </div>
+                                                )
                                             ) : (
                                                 <>
                                                     {e.filePath.includes(
@@ -189,9 +281,17 @@ function Chat() {
                                                 </div>
 
                                                 {e.messageBody ? (
-                                                    <div className='msg-text'>
-                                                        {e.messageBody}
-                                                    </div>
+                                                    search?.length >= 3 ? (
+                                                        <div className='msg-text'>
+                                                            {highLight(
+                                                                e.messageBody
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className='msg-text'>
+                                                            {e.messageBody}
+                                                        </div>
+                                                    )
                                                 ) : (
                                                     <>
                                                         {e.filePath.includes(
@@ -241,6 +341,7 @@ function Chat() {
                     <div ref={messageContainerRef} />
                 </main>
                 <form
+                    id='form-style'
                     className='msger-inputarea'
                     onSubmit={handleSubmit(submitData)}
                     method='POST'

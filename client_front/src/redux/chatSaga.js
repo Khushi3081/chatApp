@@ -1,7 +1,6 @@
 import axios from "axios"
 import { fork, call, put, takeEvery } from "redux-saga/effects"
 import { getChat, setChat } from "./features/messageSlice"
-import { useRef } from "react";
 const msgData = async (senderId, receiverId,offset,limit) => {
     const response = await axios.get(
         `http://localhost:5000/msg/fetchChat?senderId=${senderId}&&receiverId=${receiverId}&&offset=${offset}&&limit=${limit}`
