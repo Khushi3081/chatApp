@@ -11,7 +11,7 @@ import Chat from "./pages/Chat"
 import Exception from "./pages/Exception"
 import GroupChat from "./pages/GroupChat"
 import "./assets/css/Message.css"
-import Practice from "./pages/Practice"
+import Scroll from "./pages/Scroll"
 
 function App() {
     return (
@@ -33,7 +33,6 @@ function App() {
                     <Route path='/waitingPage' element={<Waiting />}></Route>
                     <Route path='/login' element={<LoginForm />}></Route>
                 </Route>
-                <Route path='/practice' element={<Practice />}></Route>
             </Routes>
         </div>
     )

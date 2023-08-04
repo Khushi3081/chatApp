@@ -35,6 +35,11 @@ const messageSlice = createSlice({
             data.messageList = action.payload
             return data
         },
+        clearChat(state, action) {
+            const data = { ...current(state) }
+            data.messageList = []
+            return data
+        },
         addGroup(state, action) {
             return action.payload
         },
@@ -75,5 +80,6 @@ export const {
     getSearchValue,
     setSearchValue,
     clearSearchValue,
+    clearChat,
 } = messageSlice.actions
 export default messageSlice.reducer

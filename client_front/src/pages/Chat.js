@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { createRef, useEffect, useRef, useState } from "react"
 import "../assets/css/TextField.css"
 import { useDispatch, useSelector } from "react-redux"
 import {
@@ -21,21 +21,30 @@ function Chat() {
     const chat = useSelector((state) => state.messageReducer)
     const offsetRef = useRef(5)
     const limit = 5
-    const chatWindow = useRef(null)
+    const chatWindow = createRef(null)
     const messageContainerRef = useRef(null)
-    const scrollToBottom = () => {
-        const messageBody = chatWindow.current
-        messageBody.scrollTop =
-            messageBody.scrollHeight - messageBody.clientHeight
+    const previousScrollHeightRef = useRef(0)
+    const [loading, setLoading] = useState(false)
+    const loadMoreMessages = () => {
+        setLoading(true)
+        setTimeout(() => {
+            const offset = offsetRef.current
+            dispatch(getChat({ senderId, receiverId, offset }))
+            offsetRef.current += limit
+            setLoading(false)
+        }, 800)
     }
-    useEffect(() => {
-        const offset = offsetRef.current
-        dispatch(getChat({ senderId, receiverId, offset }))
-    }, [senderId, receiverId])
 
     useEffect(() => {
-        scrollToBottom()
-    })
+        if (chat.messageList.length > 5) {
+            const newScrollHeight = chatWindow.current.scrollHeight
+            chatWindow.current.scrollTop =
+                newScrollHeight - previousScrollHeightRef.current
+            previousScrollHeightRef.current = newScrollHeight
+        } else {
+            chatWindow.current.scrollTop = chatWindow.current.scrollHeight
+        }
+    }, [chat])
     const {
         register,
         handleSubmit,
@@ -55,7 +64,7 @@ function Chat() {
         }
         if (!errors.fieldRequired?.message && data.msg !== "") {
             dispatch(getMsg({ data, senderId, receiverId }))
-            scrollToBottom()
+
             reset()
         } else if (!errors?.fieldRequired?.message && data?.file[0] !== "") {
             const file = data.file[0]
@@ -65,36 +74,18 @@ function Chat() {
             info.append("file", file)
             dispatch(addFile(info))
             reset()
-            scrollToBottom()
         }
     }
-
-    const handleScroll = (e) => {
-        const messageBody = chatWindow.current
-        const scrolledToTop = messageBody.scrollTop !== 0
-
-        const scrolledUpToHeight =
-            messageBody.scrollHeight -
-                messageBody.clientHeight -
-                messageBody.scrollTop <
-            100
-
-        // if (
-        //     messageBody.scrollTop ===
-        //     messageBody.scrollHeight - messageBody.clientHeight
-        // ) {
-        if (scrolledUpToHeight && scrolledToTop) {
-            offsetRef.current += limit
-            const offset = offsetRef.current
-            console.log(offset)
-            dispatch(getChat({ senderId, receiverId, offset }))
+    const handleScroll = () => {
+        const { clientHeight, scrollHeight, scrollTop } = chatWindow.current
+        if (scrollTop === 0 && !loading) {
+            loadMoreMessages()
         }
-        // }
     }
     const handleSearch = (e) => {
         const search = e.target.value
         setSearch(search)
-        // dispatch(getSearchValue({ search, senderId, receiverId }))
+        dispatch(getSearchValue({ search, senderId, receiverId }))
     }
     const highLight = (message) => {
         const parts = []
@@ -170,8 +161,9 @@ function Chat() {
                                     onChange={handleSearch}
                                 ></input>
                             </div>
-                            <div style={{fontSize:"1.3rem"}}>
-                                Matched Ocuurences : {count}
+                            <div style={{ fontSize: "1.3rem" }}>
+                                Matched Ocuurences :{" "}
+                                {search ? chat.searchList.data : 0}
                             </div>
                         </div>
                     </div>
@@ -184,7 +176,7 @@ function Chat() {
                 <main
                     ref={chatWindow}
                     className='msger-chat'
-                    // onScroll={handleScroll}
+                    onScroll={handleScroll}
                 >
                     {chat?.messageList?.length > 0 ? (
                         chat?.messageList?.map((e, index) => {

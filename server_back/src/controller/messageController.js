@@ -52,7 +52,7 @@ const fetchChat = async (req, res) => {
     const senderId = Number(req.query.senderId)
     const receiverId = Number(req.query.receiverId)
     const offset = Number(req.query.offset)
-    console.log(offset)
+    const index = -offset
     try {
         const msgData = await msg.findAll({
             where: {
@@ -87,10 +87,13 @@ const fetchChat = async (req, res) => {
                 ],
             },
             include: [{ model: user, as: "user", attributes: ["firstName"] }],
+            order: Sequelize.literal("id DESC"),
         })
+        // console.log(msgData);
         const result = msgData.concat(fileData)
         result.sort((a, b) => a.createdAt - b.createdAt)
-        res.send(result)
+        // result.slice(index)
+        res.send(result.slice(index))
     } catch (error) {
         console.log(error.message)
     }
@@ -100,7 +103,7 @@ const searchData = async (req, res) => {
         const senderId = Number(req.query.senderId)
         const receiverId = Number(req.query.receiverId)
         const search = req.query.search
-        const data = await msg.findAll({
+        const data = await msg.count({
             where: {
                 [Op.and]: {
                     messageBody: {
@@ -119,7 +122,7 @@ const searchData = async (req, res) => {
                 },
             },
         })
-        res.send(data)
+        res.send({ data })
     } catch (error) {
         console.log(error.message)
     }

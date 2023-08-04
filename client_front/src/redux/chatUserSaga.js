@@ -1,6 +1,6 @@
 import axios from "axios"
 import { fork, call, put, takeEvery } from "redux-saga/effects"
-import { getChatUser, setChatUser } from "./features/messageSlice"
+import { clearChat, getChatUser, setChatUser } from "./features/messageSlice"
 
 const userData = async () => {
     const response = await axios.get("http://localhost:5000/msg/chatUserData")

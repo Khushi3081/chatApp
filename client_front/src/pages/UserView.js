@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom"
 import TextField from "../components/TextField"
 import { persistor } from "../redux/store"
 import { useDispatch, useSelector } from "react-redux"
-import { getChatUser } from "../redux/features/messageSlice"
+import { clearChat, getChat, getChatUser } from "../redux/features/messageSlice"
 import "../assets/css/Admin.css"
 import { addGroup } from "../redux/features/messageSlice"
 import { getgroupUser } from "../redux/features/groupSlice"
@@ -20,6 +20,8 @@ function UserView() {
     const userList = useSelector((state) => state.messageReducer.userList)
     const groupList = useSelector((state) => state.groupReducer.groupUser)
     const senderId = useSelector((state) => state.userReducer.token.userId)
+    const chat = useSelector((state) => state.messageReducer)
+
     const logOut = () => {
         localStorage.removeItem("accessToken")
         persistor.pause()
@@ -58,6 +60,9 @@ function UserView() {
             navigate(`/groupChat/${id}`)
         }
     }
+    useEffect(() => {
+                dispatch(clearChat())
+    }, [])
     return (
         <div>
             UserView
@@ -78,9 +83,16 @@ function UserView() {
                                             <input
                                                 type='button'
                                                 value='Start-chat'
-                                                onClick={() =>
+                                                onClick={() => {
+                                                    dispatch(
+                                                        getChat({
+                                                            senderId,
+                                                            receiverId: e.id,
+                                                            offset: 5,
+                                                        })
+                                                    )
                                                     navigate(`/chat/${e.id}`)
-                                                }
+                                                }}
                                             ></input>
                                         </td>
                                         <td>
