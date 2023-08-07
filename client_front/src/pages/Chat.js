@@ -25,6 +25,8 @@ function Chat() {
     const messageContainerRef = useRef(null)
     const previousScrollHeightRef = useRef(0)
     const [loading, setLoading] = useState(false)
+    const [fileData, setFileData] = useState([])
+    const [fileId, setFileId] = useState()
     const loadMoreMessages = () => {
         setLoading(true)
         setTimeout(() => {
@@ -36,7 +38,7 @@ function Chat() {
     }
 
     useEffect(() => {
-        if (chat.messageList.length > 5) {
+        if (chat?.messageList?.length > 5) {
             const newScrollHeight = chatWindow.current.scrollHeight
             chatWindow.current.scrollTop =
                 newScrollHeight - previousScrollHeightRef.current
@@ -117,6 +119,20 @@ function Chat() {
         return message
     }
 
+    const downloadDoc = (id, filePath) => {
+        console.log(id)
+        setFileId(id)
+        fetch(`/${filePath?.split("/").pop()}`).then((response) => {
+            console.log(response)
+            response.blob().then((blob) => {
+                let url = window.URL.createObjectURL(blob)
+                let a = document.createElement("a")
+                a.href = url
+                a.download = `${filePath}`
+                a.click()
+            })
+        })
+    }
     let count = 0
     if (search?.length >= 3) {
         chat.messageList.map((message) => {
@@ -127,6 +143,7 @@ function Chat() {
             return count
         })
     }
+
     return (
         <div>
             <h2>Get started</h2>
@@ -216,34 +233,109 @@ function Chat() {
                                                 )
                                             ) : (
                                                 <>
+                                                    {console.log(e.filePath)}
                                                     {e.filePath.includes(
-                                                        "webm" || "mp3" || "mp4"
+                                                        "pdf" || "docx"
                                                     ) ? (
-                                                        <video
-                                                            controls
-                                                            style={{
-                                                                height: "150px",
-                                                                width: "250px",
-                                                            }}
-                                                        >
-                                                            <source
-                                                                src={`/${e?.filePath
-                                                                    ?.split("/")
-                                                                    .pop()}`}
-                                                                type='video/webm'
-                                                            />
-                                                        </video>
+                                                        <>
+                                                            {console.log(
+                                                                e.filePath
+                                                            )}
+                                                            <>
+                                                                <span
+                                                                    onClick={() =>
+                                                                        downloadDoc(
+                                                                            e.id,
+                                                                            e.filePath
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {e.fileName}
+                                                                </span>
+                                                            </>
+                                                        </>
                                                     ) : (
-                                                        <img
-                                                            src={`/${e?.filePath
-                                                                ?.split("/")
-                                                                .pop()}`}
-                                                            alt={e.fileName}
-                                                            style={{
-                                                                height: "70px",
-                                                                width: "80px",
-                                                            }}
-                                                        ></img>
+                                                        <>
+                                                            {e.filePath.includes(
+                                                                "webm" ||
+                                                                    "mp3" ||
+                                                                    "mp4"
+                                                            ) ? (
+                                                                <>
+                                                                    {fileData?.includes(
+                                                                        e?.id
+                                                                    ) ? (
+                                                                        <video
+                                                                            controls
+                                                                            style={{
+                                                                                height: "150px",
+                                                                                width: "250px",
+                                                                            }}
+                                                                        >
+                                                                            <source
+                                                                                src={`/${e.filePath
+                                                                                    ?.split(
+                                                                                        "/"
+                                                                                    )
+                                                                                    .pop()}`}
+                                                                                type='video/webm'
+                                                                            />
+                                                                        </video>
+                                                                    ) : (
+                                                                        <span
+                                                                            onClick={() =>
+                                                                                setFileData(
+                                                                                    [
+                                                                                        ...fileData,
+                                                                                        e.id,
+                                                                                    ]
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                e.fileName
+                                                                            }
+                                                                        </span>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    {fileData?.includes(
+                                                                        e?.id
+                                                                    ) ? (
+                                                                        <img
+                                                                            src={`/${e.filePath
+                                                                                ?.split(
+                                                                                    "/"
+                                                                                )
+                                                                                .pop()}`}
+                                                                            alt={
+                                                                                e.fileName
+                                                                            }
+                                                                            style={{
+                                                                                height: "70px",
+                                                                                width: "80px",
+                                                                            }}
+                                                                        ></img>
+                                                                    ) : (
+                                                                        <span
+                                                                            onClick={() =>
+                                                                                setFileData(
+                                                                                    [
+                                                                                        ...fileData,
+                                                                                        e.id,
+                                                                                    ]
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                e.fileName
+                                                                            }
+                                                                        </span>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </>
                                                     )}
                                                 </>
                                             )}
@@ -287,37 +379,109 @@ function Chat() {
                                                 ) : (
                                                     <>
                                                         {e.filePath.includes(
-                                                            "webm" ||
-                                                                "mp3" ||
-                                                                "mp4"
+                                                            "docx" || "pdf"
                                                         ) ? (
-                                                            <video
-                                                                controls
-                                                                style={{
-                                                                    height: "150px",
-                                                                    width: "250px",
-                                                                }}
-                                                            >
-                                                                <source
-                                                                    src={`/${e?.filePath
-                                                                        ?.split(
-                                                                            "/"
-                                                                        )
-                                                                        .pop()}`}
-                                                                    type='video/webm'
-                                                                />
-                                                            </video>
+                                                            <>
+                                                                {console.log(
+                                                                    e.filePath
+                                                                )}
+                                                                <>
+                                                                    <span
+                                                                        onClick={() =>
+                                                                            downloadDoc(
+                                                                                e.id,
+                                                                                e.filePath
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            e.fileName
+                                                                        }
+                                                                    </span>
+                                                                </>
+                                                            </>
                                                         ) : (
-                                                            <img
-                                                                src={`/${e?.filePath
-                                                                    ?.split("/")
-                                                                    .pop()}`}
-                                                                alt={e.fileName}
-                                                                style={{
-                                                                    height: "70px",
-                                                                    width: "80px",
-                                                                }}
-                                                            ></img>
+                                                            <>
+                                                                {e.filePath.includes(
+                                                                    "webm" ||
+                                                                        "mp3" ||
+                                                                        "mp4"
+                                                                ) ? (
+                                                                    <>
+                                                                        {fileData?.includes(
+                                                                            e?.id
+                                                                        ) ? (
+                                                                            <video
+                                                                                controls
+                                                                                style={{
+                                                                                    height: "150px",
+                                                                                    width: "250px",
+                                                                                }}
+                                                                            >
+                                                                                <source
+                                                                                    src={`/${e.filePath
+                                                                                        ?.split(
+                                                                                            "/"
+                                                                                        )
+                                                                                        .pop()}`}
+                                                                                    type='video/webm'
+                                                                                />
+                                                                            </video>
+                                                                        ) : (
+                                                                            <span
+                                                                                onClick={() =>
+                                                                                    setFileData(
+                                                                                        [
+                                                                                            ...fileData,
+                                                                                            e.id,
+                                                                                        ]
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    e.fileName
+                                                                                }
+                                                                            </span>
+                                                                        )}
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        {fileData?.includes(
+                                                                            e?.id
+                                                                        ) ? (
+                                                                            <img
+                                                                                src={`/${e.filePath
+                                                                                    ?.split(
+                                                                                        "/"
+                                                                                    )
+                                                                                    .pop()}`}
+                                                                                alt={
+                                                                                    e.fileName
+                                                                                }
+                                                                                style={{
+                                                                                    height: "70px",
+                                                                                    width: "80px",
+                                                                                }}
+                                                                            ></img>
+                                                                        ) : (
+                                                                            <span
+                                                                                onClick={() =>
+                                                                                    setFileData(
+                                                                                        [
+                                                                                            ...fileData,
+                                                                                            e.id,
+                                                                                        ]
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    e.fileName
+                                                                                }
+                                                                            </span>
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                            </>
                                                         )}
                                                     </>
                                                 )}

@@ -11,7 +11,6 @@ import Chat from "./pages/Chat"
 import Exception from "./pages/Exception"
 import GroupChat from "./pages/GroupChat"
 import "./assets/css/Message.css"
-import Scroll from "./pages/Scroll"
 
 function App() {
     return (
