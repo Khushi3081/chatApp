@@ -21,9 +21,9 @@ export default function TextField({ label, ...props }) {
                     {props.type === "submit" ? (
                         <>
                             <button
-                                type={props.type}
-                                name={props.name}
-                                value={props.name}
+                                type={props?.type}
+                                name={props?.name}
+                                value={props?.name}
                                 style={{ marginTop: "1rem" }}
                             >
                                 {props.name}
@@ -34,9 +34,9 @@ export default function TextField({ label, ...props }) {
                             {props.type === "button" ? (
                                 <>
                                     <input
-                                        type={props.type}
-                                        name={props.name}
-                                        onClick={props.handle}
+                                        type={props?.type}
+                                        name={props?.name}
+                                        onClick={props?.handle}
                                         value={label}
                                         style={{ marginTop: "1rem" }}
                                     ></input>
@@ -51,15 +51,15 @@ export default function TextField({ label, ...props }) {
                                                     flexDirection: "row",
                                                     flexWrap: "wrap",
                                                 }}
-                                                htmlFor={props.name}
+                                                htmlFor={props?.name}
                                             >
                                                 {label}
                                             </label>
                                             <input
-                                                type={props.type}
-                                                name={props.name}
-                                                onChange={props.handleChange}
-                                                value={props.value}
+                                                type={props?.type}
+                                                name={props?.name}
+                                                onChange={props?.handleChange}
+                                                value={props?.value}
                                                 max={maxdate}
                                                 {...register("dateOfBirth")}
                                             ></input>
@@ -70,13 +70,12 @@ export default function TextField({ label, ...props }) {
                                                 {label}
                                             </label>
                                             <input
-                                                type={props.type}
-                                                name={props.name}
-                                                onChange={props.handleChange}
+                                                type={props?.type}
+                                                name={props?.name}
+                                                onChange={props?.handleChange}
                                                 min={maxdate}
-                                                placeholder={props.placeholder}
-                                                {...register(props.name)}
-                                                // setValue(props.name,)
+                                                placeholder={props?.placeholder}
+                                                {...register(props?.name)}
                                             ></input>
                                         </>
                                     )}

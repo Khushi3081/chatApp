@@ -5,23 +5,23 @@ export default function RadioField({ label, ...props }) {
     return (
         <div style={{ marginRight: "1rem" }}>
             {label ? (
-                <label htmlFor={props.name}>{label}</label>
+                <label htmlFor={props?.name}>{label}</label>
             ) : (
                 <div>
                     <>
                         <label
                             style={{ fontSize: "15px" }}
-                            htmlFor={props.name}
+                            htmlFor={props?.name}
                         >
-                            {props.value}
+                            {props?.value}
                         </label>
                         <input
-                            type={props.type}
-                            name={props.name}
-                            value={props.value}
-                            checked={props.isCheck}
-                            onChange={props.handleChange}
-                            {...register(props.name)}
+                            type={props?.type}
+                            name={props?.name}
+                            value={props?.value}
+                            checked={props?.isCheck}
+                            onChange={props?.handleChange}
+                            {...register(props?.name)}
                         />
                     </>
                 </div>

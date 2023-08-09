@@ -3,7 +3,6 @@ import "../assets/css/TextField.css"
 import { useDispatch, useSelector } from "react-redux"
 import {
     addFile,
-    clearSearchValue,
     getChat,
     getMsg,
     getSearchValue,
@@ -27,6 +26,7 @@ function Chat() {
     const [loading, setLoading] = useState(false)
     const [fileData, setFileData] = useState([])
     const [fileId, setFileId] = useState()
+
     const loadMoreMessages = () => {
         setLoading(true)
         setTimeout(() => {
@@ -47,6 +47,7 @@ function Chat() {
             chatWindow.current.scrollTop = chatWindow.current.scrollHeight
         }
     }, [chat])
+
     const {
         register,
         handleSubmit,
@@ -66,29 +67,31 @@ function Chat() {
         }
         if (!errors.fieldRequired?.message && data.msg !== "") {
             dispatch(getMsg({ data, senderId, receiverId }))
-
             reset()
-        } else if (!errors?.fieldRequired?.message && data?.file[0] !== "") {
+        } else if (!errors?.fieldRequired?.message) {
             const file = data.file[0]
-            const info = new FormData()
-            info.append("senderId", senderId)
-            info.append("receiverId", receiverId)
-            info.append("file", file)
-            dispatch(addFile(info))
+            const fileData = new FormData()
+            fileData.append("file", file)
+            fileData.append("senderId", senderId)
+            fileData.append("receiverId", receiverId)
+            dispatch(addFile(fileData))
             reset()
         }
     }
+
     const handleScroll = () => {
-        const { clientHeight, scrollHeight, scrollTop } = chatWindow.current
+        const { scrollTop } = chatWindow.current
         if (scrollTop === 0 && !loading) {
             loadMoreMessages()
         }
     }
+
     const handleSearch = (e) => {
         const search = e.target.value
         setSearch(search)
         dispatch(getSearchValue({ search, senderId, receiverId }))
     }
+
     const highLight = (message) => {
         const parts = []
         let startIndex = 0
@@ -119,20 +122,10 @@ function Chat() {
         return message
     }
 
-    const downloadDoc = (id, filePath) => {
-        console.log(id)
+    const downloadDoc = (id) => {
         setFileId(id)
-        fetch(`/${filePath?.split("/").pop()}`).then((response) => {
-            console.log(response)
-            response.blob().then((blob) => {
-                let url = window.URL.createObjectURL(blob)
-                let a = document.createElement("a")
-                a.href = url
-                a.download = `${filePath}`
-                a.click()
-            })
-        })
     }
+
     let count = 0
     if (search?.length >= 3) {
         chat.messageList.map((message) => {
@@ -196,7 +189,7 @@ function Chat() {
                     onScroll={handleScroll}
                 >
                     {chat?.messageList?.length > 0 ? (
-                        chat?.messageList?.map((e, index) => {
+                        chat?.messageList?.map((e) => {
                             const time = moment(`${e.createdAt}`)
                                 .utc()
                                 .format("hh:mm:ss")
@@ -233,30 +226,44 @@ function Chat() {
                                                 )
                                             ) : (
                                                 <>
-                                                    {console.log(e.filePath)}
-                                                    {e.filePath.includes(
-                                                        "pdf" || "docx"
+                                                    {e?.filePath?.includes(
+                                                        "raw"
                                                     ) ? (
                                                         <>
-                                                            {console.log(
-                                                                e.filePath
-                                                            )}
-                                                            <>
+                                                        
+                                                            {fileId === e.id ? (
+                                                                <>
+                                                                    {/* <iframe
+                                                                        src={
+                                                                            e.filePath
+                                                                        }
+                                                                    ></iframe> */}
+                                                                    <a
+                                                                        href={
+                                                                            e.filePath
+                                                                        }
+                                                                        target='_blank'
+                                                                        rel='noopener noreferrer'
+                                                                    >
+                                                                        View
+                                                                        Document
+                                                                    </a>
+                                                                </>
+                                                            ) : (
                                                                 <span
                                                                     onClick={() =>
                                                                         downloadDoc(
-                                                                            e.id,
-                                                                            e.filePath
+                                                                            e.id
                                                                         )
                                                                     }
                                                                 >
                                                                     {e.fileName}
                                                                 </span>
-                                                            </>
+                                                            )}
                                                         </>
                                                     ) : (
                                                         <>
-                                                            {e.filePath.includes(
+                                                            {e?.filePath?.includes(
                                                                 "webm" ||
                                                                     "mp3" ||
                                                                     "mp4"
@@ -273,11 +280,9 @@ function Chat() {
                                                                             }}
                                                                         >
                                                                             <source
-                                                                                src={`/${e.filePath
-                                                                                    ?.split(
-                                                                                        "/"
-                                                                                    )
-                                                                                    .pop()}`}
+                                                                                src={
+                                                                                    e.filePath
+                                                                                }
                                                                                 type='video/webm'
                                                                             />
                                                                         </video>
@@ -304,11 +309,9 @@ function Chat() {
                                                                         e?.id
                                                                     ) ? (
                                                                         <img
-                                                                            src={`/${e.filePath
-                                                                                ?.split(
-                                                                                    "/"
-                                                                                )
-                                                                                .pop()}`}
+                                                                            src={
+                                                                                e.filePath
+                                                                            }
                                                                             alt={
                                                                                 e.fileName
                                                                             }
@@ -378,19 +381,34 @@ function Chat() {
                                                     )
                                                 ) : (
                                                     <>
-                                                        {e.filePath.includes(
-                                                            "docx" || "pdf"
+                                                        {e?.filePath?.includes(
+                                                            "raw"
                                                         ) ? (
                                                             <>
-                                                                {console.log(
-                                                                    e.filePath
-                                                                )}
-                                                                <>
+                                                                {fileId ===
+                                                                e.id ? (
+                                                                    <>
+                                                                        {/* <iframe
+                                                                            src={
+                                                                                e.filePath
+                                                                            }
+                                                                        ></iframe> */}
+                                                                        <a
+                                                                            href={
+                                                                                e.filePath
+                                                                            }
+                                                                            target='_blank'
+                                                                            rel='noopener noreferrer'
+                                                                        >
+                                                                            View
+                                                                            Document
+                                                                        </a>
+                                                                    </>
+                                                                ) : (
                                                                     <span
                                                                         onClick={() =>
                                                                             downloadDoc(
-                                                                                e.id,
-                                                                                e.filePath
+                                                                                e.id
                                                                             )
                                                                         }
                                                                     >
@@ -398,11 +416,11 @@ function Chat() {
                                                                             e.fileName
                                                                         }
                                                                     </span>
-                                                                </>
+                                                                )}
                                                             </>
                                                         ) : (
                                                             <>
-                                                                {e.filePath.includes(
+                                                                {e?.filePath?.includes(
                                                                     "webm" ||
                                                                         "mp3" ||
                                                                         "mp4"
@@ -419,11 +437,9 @@ function Chat() {
                                                                                 }}
                                                                             >
                                                                                 <source
-                                                                                    src={`/${e.filePath
-                                                                                        ?.split(
-                                                                                            "/"
-                                                                                        )
-                                                                                        .pop()}`}
+                                                                                    src={
+                                                                                        e.filePath
+                                                                                    }
                                                                                     type='video/webm'
                                                                                 />
                                                                             </video>
@@ -450,11 +466,9 @@ function Chat() {
                                                                             e?.id
                                                                         ) ? (
                                                                             <img
-                                                                                src={`/${e.filePath
-                                                                                    ?.split(
-                                                                                        "/"
-                                                                                    )
-                                                                                    .pop()}`}
+                                                                                src={
+                                                                                    e.filePath
+                                                                                }
                                                                                 alt={
                                                                                     e.fileName
                                                                                 }
@@ -526,7 +540,7 @@ function Chat() {
                         className='msger-send-btn'
                     ></input>
                 </form>
-                <div className='error'>{errors.fieldRequired?.message}</div>
+                <div className='error'>{errors?.fieldRequired?.message}</div>
             </section>
         </div>
     )

@@ -41,7 +41,7 @@ function AdminView() {
                         <th scope='col'>Action</th>
                     </tr>
                 </thead>
-                {user?.map((e, index) => {
+                {user?.map((e) => {
                     return (
                         <tbody>
                             <td>{e.id}</td>
@@ -91,7 +91,6 @@ function AdminView() {
                         </tbody>
                     )
                 })}
-
                 <button onClick={() => navigate("/", { state: { id: 1 } })}>
                     Add
                 </button>

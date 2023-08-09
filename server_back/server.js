@@ -11,16 +11,50 @@ require("dotenv").config()
 const app = express()
 const port = 5000
 app.use(cors())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }))
+app.use(bodyParser.json({ limit: "50mb" }))
 app.use(passport.initialize())
 app.use(session({ secret: "SECRET", resave: false, saveUninitialized: true }))
 app.use(passport.session())
 const path = require("path")
 app.use(express.static(path.join(__dirname, "public/uploads")))
+require("./src/googleStrategy")
 
+const GoogleStrategy = require("passport-google-oauth20").Strategy
+
+passport.use(
+    new GoogleStrategy(
+        {
+            clientID:
+                "1094845245191-kuh5sm7kuqd1756d3daf9pld0la3ukf2.apps.googleusercontent.com",
+            clientSecret: "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",
+            callbackURL: "http://localhost:5000/google/callback",
+            proxy: true,
+        },
+        function (request, accessToken, refreshToken, profile, cb) {
+            // console.log(profile);
+            return cb(null, profile)
+        }
+    )
+)
+passport.serializeUser(function (user, cb) {
+    cb(null, user)
+})
+passport.deserializeUser(function (obj, cb) {
+    cb(null, obj)
+})
+app.get(
+    "/google",
+    passport.authenticate("google", { scope: ["email", "profile"] })
+)
+app.get(
+    "/google/callback",
+    passport.authenticate("google", {
+        successRedirect: "/success",
+        failureRedirect: "/error",
+    })
+)
 app.get("/success", async (req, res) => {
-    console.log(req)
     let fname = req.user.name.familyName
     let lname = req.user.name.givenName
     let name = fname + lname
@@ -43,40 +77,6 @@ app.get("/success", async (req, res) => {
     res.end()
 })
 app.get("/error", (req, res) => res.send("error logging in"))
-passport.deserializeUser(function (obj, cb) {
-    cb(null, obj)
-})
-const GoogleStrategy = require("passport-google-oauth20").Strategy
-
-passport.use(
-    new GoogleStrategy(
-        {
-            clientID:
-                "1094845245191-kuh5sm7kuqd1756d3daf9pld0la3ukf2.apps.googleusercontent.com",
-            clientSecret: "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",
-            callbackURL: "http://localhost:5000/google/callback",
-            proxy: true,
-        },
-        function (request, accessToken, refreshToken, profile, cb) {
-            // console.log(profile);
-            return cb(null, profile)
-        }
-    )
-)
-passport.serializeUser(function (user, cb) {
-    cb(null, user)
-})
-app.get(
-    "/google",
-    passport.authenticate("google", { scope: ["email", "profile"] })
-)
-app.get(
-    "/google/callback",
-    passport.authenticate("google", {
-        successRedirect: "/success",
-        failureRedirect: "/error",
-    })
-)
 app.use("/", userRoutes)
 app.use("/msg", msgRoutes)
 app.use("/grp", grpRoutes)

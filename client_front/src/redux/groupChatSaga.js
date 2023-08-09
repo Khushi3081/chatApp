@@ -1,9 +1,12 @@
 import axios from "axios"
 import { fork, call, put, takeEvery } from "redux-saga/effects"
 import { getgroupUser, setgroupUser } from "./features/groupSlice"
-
+import { getAuthorizationHeader } from "../interceptor"
 const groupData = async () => {
-    const response = await axios.get("http://localhost:5000/grp/groupUserData")
+    const response = await axios.get(
+        "http://localhost:5000/grp/groupUserData",
+        { headers: { Authorization: getAuthorizationHeader() } }
+    )
     return response.data
 }
 

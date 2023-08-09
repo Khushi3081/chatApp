@@ -93,7 +93,7 @@ const userSlice = createSlice({
         setToken(state, action) {
             const data = { ...current(state) }
             data.token = action.payload
-            localStorage.setItem("accessToken",action.payload.token)
+            localStorage.setItem("accessToken", action.payload.token)
             return { ...data }
         },
     },

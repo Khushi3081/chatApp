@@ -1,12 +1,20 @@
 import axios from "axios"
 import { fork, call, put, takeEvery } from "redux-saga/effects"
 import { getChat, getMsg } from "./features/messageSlice"
+import { getAuthorizationHeader } from "../interceptor"
+
 const msgData = async (payload) => {
-    const response = await axios.post("http://localhost:5000/msg/addMsg", {
-        msg: payload.data.msg,
-        senderId: payload.senderId,
-        receiverId: payload.receiverId,
-    })
+    const response = await axios.post(
+        "http://localhost:5000/msg/addMsg",
+        {
+            msg: payload.data.msg,
+            senderId: payload.senderId,
+            receiverId: payload.receiverId,
+        },
+        {
+            headers: { Authorization: getAuthorizationHeader() },
+        }
+    )
 
     return response.data
 }

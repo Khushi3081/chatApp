@@ -56,11 +56,10 @@ function RegistrationForm() {
         password: yup
             .string()
             .required("Password is required")
-            .min(8, "Password must have at least 8 characters")
-            // different error messages for different requirements
-            .matches(/[0-9]/, "atleast one digit is required")
-            .matches(/[a-z]/, "atleast one lowercase is required")
-            .matches(/[A-Z]/, "atleast one uppercase is required"),
+            .matches(
+                /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
+                "Password contains one uppercase,one lowercase, one digit and length should be 8 digit"
+            ),
     })
     const {
         register,
@@ -99,7 +98,6 @@ function RegistrationForm() {
                           userData,
                       })
                       .then((response) => {
-                          console.log(response)
                           navigate("/admin")
                       })
                 : axios
@@ -128,42 +126,46 @@ function RegistrationForm() {
     return (
         <div>
             <h2>Registration-Form</h2>
-            <form id="form-style" onSubmit={handleSubmit(submitData)} method='POST'>
+            <form
+                id='form-style'
+                onSubmit={handleSubmit(submitData)}
+                method='POST'
+            >
                 <TextField
                     label='FirstName'
                     name='firstName'
                     type='text'
                     register={register}
                 ></TextField>
-                <div className='error'>{errors.firstName?.message}</div>
+                <div className='error'>{errors?.firstName?.message}</div>
                 <TextField
                     label='LastName'
                     name='lastName'
                     type='text'
                     register={register}
                 ></TextField>
-                <div className='error'>{errors.lastName?.message}</div>
+                <div className='error'>{errors?.lastName?.message}</div>
                 <TextField
                     label='email'
                     name='email'
                     type='text'
                     register={register}
                 ></TextField>
-                <div className='error'>{errors.email?.message}</div>
+                <div className='error'>{errors?.email?.message}</div>
                 <TextField
                     label='phoneNo'
                     name='phoneNo'
                     type='text'
                     register={register}
                 ></TextField>
-                <div className='error'>{errors.phoneNo?.message}</div>
+                <div className='error'>{errors?.phoneNo?.message}</div>
                 <TextField
                     label='dateOfBirth'
                     name='dateOfBirth'
                     type='date'
                     register={register}
                 ></TextField>
-                <div className='error'>{errors.dateOfBirth?.message}</div>
+                <div className='error'>{errors?.dateOfBirth?.message}</div>
                 <RadioField label='Gender' register={register}></RadioField>
                 <div
                     style={{
@@ -191,7 +193,7 @@ function RegistrationForm() {
                         register={register}
                     ></RadioField>
                 </div>
-                <div className='error'>{errors.gender?.message}</div>
+                <div className='error'>{errors?.gender?.message}</div>
                 {state?.id === 1 ? (
                     <TextField
                         label='RoleName'
@@ -207,7 +209,7 @@ function RegistrationForm() {
                         register={register}
                     ></TextField>
                 )}
-                <div className='error'>{errors.password?.message}</div>
+                <div className='error'>{errors?.password?.message}</div>
                 <TextField
                     label='Submit'
                     name='Submit'
@@ -225,7 +227,7 @@ function RegistrationForm() {
 
                 <input
                     type='button'
-                    value='signIn'
+                    value='Sign in with google'
                     onClick={LoginWithGoogle}
                 ></input>
                 <div className='error'>{oldUserError}</div>

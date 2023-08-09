@@ -1,14 +1,14 @@
 import axios from "axios"
 import { fork, call, put, takeEvery } from "redux-saga/effects"
-import {
-    clearSearchValue,
-    getSearchValue,
-    setSearchValue,
-} from "./features/messageSlice"
+import { getSearchValue, setSearchValue } from "./features/messageSlice"
+import { getAuthorizationHeader } from "../interceptor"
 
 const searchData = async (senderId, receiverId, search) => {
     const response = await axios.get(
-        `http://localhost:5000/msg/searchData?search=${search}&&senderId=${senderId}&&receiverId=${receiverId}`
+        `http://localhost:5000/msg/searchData?search=${search}&&senderId=${senderId}&&receiverId=${receiverId}`,
+        {
+            headers: { Authorization: getAuthorizationHeader() },
+        }
     )
     return response.data
 }

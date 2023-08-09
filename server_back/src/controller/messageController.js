@@ -1,37 +1,57 @@
 const Sequelize = require("sequelize")
-const filemessage = require("../models/filemessage")
-const file = require("../models").fileMessage
+const cloudinary = require("cloudinary").v2
+const fileData = require("../models").fileMessage
 const msg = require("../models").Message
 const user = require("../models").User
 
 const Op = Sequelize.Op
 const addData = async (req, res) => {
-    const senderId = req.body.senderId
-    const receiverId = Number(req.body.receiverId)
-    const data = await msg.create({
-        messageBody: req.body.msg,
-        senderId: senderId,
-        receiverId: receiverId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    })
+    try {
+        const senderId = req?.body?.senderId
+        const receiverId = Number(req?.body?.receiverId)
+        const data = await msg.create({
+            messageBody: req.body.msg,
+            senderId: senderId,
+            receiverId: receiverId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        })
 
-    res.send(data)
+        res.send(data)
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 const addFile = async (req, res) => {
-    const senderId = Number(req.body.senderId)
-    const receiverId = Number(req.body.receiverId)
-    const data = await file.create({
-        fileName: req?.file?.filename,
-        filePath: req.file.path,
-        size: req.file.size,
-        senderId: senderId,
-        receiverId: receiverId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    })
+    try {
+        const senderId = Number(req?.body?.senderId)
+        const receiverId = Number(req?.body?.receiverId)
+        const file = req?.file
 
-    res.send(data)
+        const uploadedResponse = await new Promise((resolve, reject) => {
+            cloudinary.uploader
+                .upload_stream({ resource_type: "auto" }, (error, result) => {
+                    if (error) {
+                        reject("Error uploading image:", error)
+                    } else {
+                        resolve(result)
+                    }
+                })
+                .end(file.buffer)
+        })
+        const data = await fileData.create({
+            fileName: uploadedResponse?.asset_id,
+            filePath: uploadedResponse?.secure_url,
+            size: uploadedResponse?.bytes,
+            senderId: senderId,
+            receiverId: receiverId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        })
+        res.send(data)
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 const chatUserData = async (req, res) => {
     try {
@@ -49,11 +69,11 @@ const chatUserData = async (req, res) => {
     }
 }
 const fetchChat = async (req, res) => {
-    const senderId = Number(req.query.senderId)
-    const receiverId = Number(req.query.receiverId)
-    const offset = Number(req.query.offset)
-    const index = -offset
     try {
+        const senderId = Number(req?.query?.senderId)
+        const receiverId = Number(req?.query?.receiverId)
+        const offset = Number(req?.query?.offset)
+        const index = -offset
         const msgData = await msg.findAll({
             where: {
                 [Op.or]: [
@@ -69,11 +89,9 @@ const fetchChat = async (req, res) => {
             },
             include: [{ model: user, as: "user", attributes: ["firstName"] }],
             order: Sequelize.literal("id DESC"),
-            // offset: 0,
-            // limit: offset,
         })
         msgData.sort((a, b) => a.createdAt - b.createdAt)
-        const fileData = await file.findAll({
+        const fileInfo = await fileData.findAll({
             where: {
                 [Op.or]: [
                     {
@@ -89,10 +107,8 @@ const fetchChat = async (req, res) => {
             include: [{ model: user, as: "user", attributes: ["firstName"] }],
             order: Sequelize.literal("id DESC"),
         })
-        // console.log(msgData);
-        const result = msgData.concat(fileData)
+        const result = msgData.concat(fileInfo)
         result.sort((a, b) => a.createdAt - b.createdAt)
-        // result.slice(index)
         res.send(result.slice(index))
     } catch (error) {
         console.log(error.message)

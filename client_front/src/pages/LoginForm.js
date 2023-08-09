@@ -16,11 +16,13 @@ function LoginForm() {
             .string()
             .required("Email is Required")
             .email("Email is invalid"),
-        password: yup.string().required("Password is required"),
-        // .matches(
-        //     passRegExp,
-        //     "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character"
-        // ),
+        password: yup
+            .string()
+            .required("Password is required")
+            .matches(
+                /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
+                "Password contains one uppercase,one lowercase, one digit and length should be 8 digit"
+            ),
     })
     const {
         register,
@@ -37,26 +39,26 @@ function LoginForm() {
                     userLoginData,
                 })
                 .then((response) => {
-                    if (response.data === "email is incorrect") {
+                    if (response?.data === "email is incorrect") {
                         backError.email = "Entered email is incorrect"
-                    } else if (response.data === "Password does not match") {
+                    } else if (response?.data === "Password does not match") {
                         backError.password = "Password does not match"
                     } else if (
-                        response.data.token &&
-                        response.data.roleId !== 1 &&
-                        response.data.isActive === true
+                        response?.data?.token &&
+                        response?.data?.roleId !== 1 &&
+                        response?.data?.isActive === true
                     ) {
                         dispatch(
                             setToken({
-                                token: response.data.token,
-                                roleId: response.data.roleId,
-                                userId: response.data.data.id,
+                                token: response?.data?.token,
+                                roleId: response?.data?.roleId,
+                                userId: response?.data?.data.id,
                             })
                         )
                     } else if (
-                        response.data.token &&
-                        response.data.roleId !== 1 &&
-                        response.data.isActive === false
+                        response?.data?.token &&
+                        response?.data?.roleId !== 1 &&
+                        response?.data?.isActive === false
                     ) {
                         backError.common =
                             "Wait sometimes admin can soon activate your account"
@@ -64,9 +66,9 @@ function LoginForm() {
                     } else {
                         dispatch(
                             setToken({
-                                token: response.data.token,
-                                roleId: response.data.roleId,
-                                userId: response.data.data.id,
+                                token: response?.data?.token,
+                                roleId: response?.data?.roleId,
+                                userId: response?.data?.data.id,
                             })
                         )
                     }
@@ -77,7 +79,11 @@ function LoginForm() {
     return (
         <div>
             <h2>Login-Form</h2>
-            <form id="form-style" onSubmit={handleSubmit(submitData)} method='POST'>
+            <form
+                id='form-style'
+                onSubmit={handleSubmit(submitData)}
+                method='POST'
+            >
                 <TextField
                     label='Email'
                     name='email'

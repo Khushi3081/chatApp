@@ -2,7 +2,6 @@ require("dotenv").config()
 const jwt = require("jsonwebtoken")
 const verifyToken = (req, res, next) => {
     const token = req.headers["authorization"]
-    console.log(process.env.JWT_TOKEN_SECRET)
     if (!token) {
         return res.status(403).send("A token is required for authentication")
     }

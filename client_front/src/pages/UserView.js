@@ -17,10 +17,9 @@ function UserView() {
         dispatch(getChatUser())
         dispatch(getgroupUser())
     }, [])
-    const userList = useSelector((state) => state.messageReducer.userList)
-    const groupList = useSelector((state) => state.groupReducer.groupUser)
-    const senderId = useSelector((state) => state.userReducer.token.userId)
-    const chat = useSelector((state) => state.messageReducer)
+    const userList = useSelector((state) => state?.messageReducer?.userList)
+    const groupList = useSelector((state) => state?.groupReducer?.groupUser)
+    const senderId = useSelector((state) => state?.userReducer?.token?.userId)
 
     const logOut = () => {
         localStorage.removeItem("accessToken")
@@ -32,11 +31,11 @@ function UserView() {
     }
     const handleChange = (index) => {
         let ids = [...userId]
-        if (ids.includes(index)) {
-            const id = ids.filter((el) => el !== index)
+        if (ids?.includes(index)) {
+            const id = ids?.filter((el) => el !== index)
             setUserId(id)
         } else {
-            ids.push(index)
+            ids?.push(index)
             setUserId(ids)
         }
     }
@@ -61,7 +60,7 @@ function UserView() {
         }
     }
     useEffect(() => {
-                dispatch(clearChat())
+        dispatch(clearChat())
     }, [])
     return (
         <div>

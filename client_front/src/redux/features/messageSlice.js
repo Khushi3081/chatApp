@@ -12,7 +12,7 @@ const messageSlice = createSlice({
     name: "message",
     initialState,
     reducers: {
-        getMsg(state, action) {
+        getMsg(action) {
             return action.payload
         },
         setUserMsg(state, action) {
@@ -35,12 +35,12 @@ const messageSlice = createSlice({
             data.messageList = action.payload
             return data
         },
-        clearChat(state, action) {
+        clearChat(state) {
             const data = { ...current(state) }
             data.messageList = []
             return data
         },
-        addGroup(state, action) {
+        addGroup(action) {
             return action.payload
         },
         setGroup(state, action) {
@@ -48,7 +48,7 @@ const messageSlice = createSlice({
             data.groupList = action.payload
             return { ...data }
         },
-        addFile(state, action) {
+        addFile(action) {
             return action.payload
         },
         getSearchValue(state, action) {
@@ -60,7 +60,7 @@ const messageSlice = createSlice({
             data.searchList = action.payload
             return data
         },
-        clearSearchValue(state, action) {
+        clearSearchValue(state) {
             const data = { ...current(state) }
             data.searchList = ""
             return data

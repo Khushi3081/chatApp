@@ -1,9 +1,11 @@
 import axios from "axios"
 import { fork, call, put, takeEvery } from "redux-saga/effects"
-import { clearChat, getChatUser, setChatUser } from "./features/messageSlice"
-
+import { getChatUser, setChatUser } from "./features/messageSlice"
+import { getAuthorizationHeader } from "../interceptor"
 const userData = async () => {
-    const response = await axios.get("http://localhost:5000/msg/chatUserData")
+    const response = await axios.get("http://localhost:5000/msg/chatUserData", {
+        headers: { Authorization: getAuthorizationHeader() },
+    })
     return response.data
 }
 
